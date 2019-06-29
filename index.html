@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function () {
+        var socket = io();
+        $('#shell_cmd').submit(function(e){
+          e.preventDefault(); // prevents page reloading
+          socket.emit('chat message', $('#m').val());
+          $('#m').val('');
+          return false;
+
+          });
+
+        socket.on('change occured', function(ev, path){
+          $('#logs').append($('<li>').text(`Event: ${ev} Path/File: ${path}`));
+        });
+      
+        let monitoring = false
+        $('#start_monitoring').click((e) => {
+          e.preventDefault();
+         let val = $('#p_val').val()
+          if (!monitoring) {
+            socket.emit("start monitoring", val)
+            $('#start_monitoring').text('Stop Monitoring!')
+          } else {
+            socket.emit("stop monitoring", val)
+            $('#start_monitoring').text('Start Monitoring!')
+          }
+          monitoring = !monitoring
+        })
+
+      });
+
+      
+      //var socket = io();
+    </script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; width: 100%; }
+      #shell_cmd { bottom: 0 }
+      #path_form { top: 0 }
+      form label { background: white; }
+      form input { border: 0; padding: 10px; width: 80%; margin-right: .5%;}
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #logs { list-style-type: none; margin: 0; padding: 0; margin-top: 46px}
+      #logs li { padding: 5px 10px; }
+      #logs li:nth-child(odd) { background: #eee; }
+    </style>
+  </head>
+  <body>
+    <div>
+      <ul id="logs"></ul>
+    </div>
+    <div>
+      <form id="path_form" action="">
+        <label for="file_path">File / Dir to watch</label>
+        <input id="p_val" autocomplete="off">
+        <button id="start_monitoring">Start Monitoring</button>
+      </form>
+    </div>
+    <form id="shell_cmd" action="">
+      <label for="cmd">Command to excute: </label>
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+  </body>
+</html>
